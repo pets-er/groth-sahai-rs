@@ -130,7 +130,72 @@ impl<E: PairingEngine> Verifiable<E> for QuadEqu<E> {
         lhs == rhs
     }
 }
-
+// TODO adjust to verifiable 
+fn batched_verify(pp: &HashMap<String, ElementType>, crs: &HashMap<String, Vec<ElementType>>, 
+                  proof: &Vec<HashMap<String, Vec<ElementType>>>, com_x: &Vec<Vec<ElementType>>, 
+                  com_y: &Vec<Vec<ElementType>>, gamma_t: &Vec<ElementType>) -> bool {
+    // Initialize dictionaries and LHS
+    let mut p1: HashMap<usize, ElementType> = HashMap::new();
+    let mut p2: HashMap<usize, ElementType> = HashMap::new();
+    let mut lhs: ElementType = Element::one();
+    
+    // Set m to the length of com_x and n to the length of com_y
+    let m = com_x.len();
+    let n = com_y.len();
+    
+    let mut p1_values: Vec<ElementType> = Vec::with_capacity(m + 4);
+    let mut p2_values: Vec<ElementType> = Vec::with_capacity(m + 4);
+    
+    let mut s: Vec<ElementType> = vec![Group::random(), Group::random()];
+    let mut r: Vec<ElementType> = vec![Group::random(), Group::random()];
+    
+    // Loop over all possible combinations of vv1 and vv2
+    for ii in 0..gamma_t.len() {
+        let gamma_t_value = gamma_t[ii];
+        let pi = &proof[ii];
+        
+        for vv1 in [0, 1].iter() {
+            for vv2 in [0, 1].iter() {
+                for i in 0..m {
+                    p1.insert(i, com_x[i][*vv1]);
+                    p2.insert(i, Element::one());
+                    for j in 0..n {
+                        p2.entry(i).and_modify(|entry| *entry *= com_y[j][*vv2].pow(gamma_t_value[j][i]));
+                    }
+                }
+            }
+        }
+        
+        p1_values = (0..m + 4).map(|i| {
+            match i {
+                m => crs["vv1"][vv1].inverse().unwrap(),
+                m + 1 => crs["ww1"][vv1].inverse().unwrap(),
+                m + 2 => pi["pi_v2"][vv1],
+                m + 3 => pi["pi_w2"][vv1],
+                _ => p1[&i],
+            }
+        }).collect();
+        
+        p2_values = (0..m + 4).map(|i| {
+            match i {
+                m => pi["pi_v1"][vv1],
+                m + 1 => pi["pi_w1"][vv1],
+                m + 2 => crs["vv2"][vv1].inverse().unwrap(),
+                m + 3 => crs["ww2"][vv1].inverse().unwrap(),
+                _ => p2[&i],
+            }
+        }).collect();
+        
+        // Compute the pairing of each element in p1_values and p2_values, and multiply them all and keep them in lhs
+        for k in 0..m + 4 {
+            let pairing_result = pair(p1_values[k].pow(s[0]) * p1_values[k].pow(s[1]), p2_values[k].pow(r[0]) * p2_values[k].pow(r[1]));
+            lhs *= pairing_result;
+        }
+    }
+    
+    // Check if lhs is equal to the identity value in GT, i.e. pp["GT"]^0, and return the result
+    lhs == pp["GT"].pow(&[Element::zero()])
+}
 /*
  * NOTE:
  *
