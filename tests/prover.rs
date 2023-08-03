@@ -6,7 +6,7 @@ mod SXDH_prover_tests {
     
     use ark_bls12_381::{Bls12_381 as F};
     use ark_ec::{PairingEngine, ProjectiveCurve, AffineCurve};
-    use ark_ff::{UniformRand, Zero, field_new};
+    use ark_ff::{UniformRand, Zero, One, field_new};
     use ark_std::test_rng;
 
     use groth_sahai::{CRS, AbstractCrs};
@@ -20,7 +20,31 @@ mod SXDH_prover_tests {
     type G2Affine = <F as PairingEngine>::G2Affine;
     type Fr = <F as PairingEngine>::Fr;
     type Fqk = <F as PairingEngine>::Fqk;
-
+    #[test]
+    fn lol(){
+        std::env::set_var("DETERMINISTIC_TEST_RNG", "1");
+        let mut rng = test_rng();
+        let crs = CRS::<F>::generate_crs(&mut rng);
+    
+        let xvars: Vec<G1Affine> = vec![
+            crs.g1_gen.mul(Fr::rand(&mut rng)).into_affine(),
+            crs.g1_gen.mul(Fr::rand(&mut rng)).into_affine()
+        ];
+        let yvars: Vec<G2Affine> = vec![
+            crs.g2_gen.mul(Fr::rand(&mut rng)).into_affine()
+        ];
+    
+        let equ: PPE<F> = PPE::<F> {
+            a_consts: vec![crs.g1_gen.mul(Fr::rand(&mut rng)).into_affine()],
+            b_consts: vec![crs.g2_gen.mul(Fr::rand(&mut rng)).into_affine(), crs.g2_gen.mul(Fr::rand(&mut rng)).into_affine()],
+            gamma: vec![vec![Fr::one()], vec![Fr::zero()]],
+            // NOTE: dummy variable for this bench
+            target: Fqk::rand(&mut rng)
+        };
+    
+        let proof: CProof<F> = equ.commit_and_prove(&xvars, &yvars, &crs, &mut rng);
+        equ.verify(&proof, &crs);
+    }
     #[test]
     fn pairing_product_equation_verifies() {
 

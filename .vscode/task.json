@@ -1,0 +1,16 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "taskName": "echotest",
+        "label": "Run all benches",
+        "type": "shell",
+        "command": "cargo",
+        "args": ["bench"],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        }
+      }
+    ]
+  }
+  

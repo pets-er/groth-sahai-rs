@@ -1,0 +1,65 @@
+{
+  "version": "0.1.0",
+  "configurations": [
+    {
+        "name": "Debug ALL unit tests in library 'mylib'",
+        "type": "lldb",
+        "request": "launch",
+        "cargo": {
+            "args": [
+                "test",
+                "--no-run",
+                "--lib",
+                "--package=groth-sahai"
+            ],
+            "filter": {
+                "name": "groth-sahai",
+                "kind": "lib"
+            }
+        },
+        "args": [ ],
+        "cwd": "${workspaceFolder}"
+    },
+    {
+        "type": "lldb",
+        "request": "launch",
+        "name": "Debug unit tests in executable 'my-project'",
+        "cargo": {
+            "args": [
+                "bench",
+                "--package=groth-sahai",
+            ],
+            "filter": {
+                "name": "groth-sahai",
+                "kind": "lib"
+            }
+        },
+        "args": [],
+        "cwd": "${workspaceFolder}"
+    },
+    {
+        "name": "bruh",
+        "type": "lldb",
+        "request": "launch",
+        "cargo": {
+            "args": [
+                "bench",
+                "--no-run",
+                "--lib",
+                "--package=groth-sahai"
+            ],
+            "filter": {
+                "name": "groth-sahai",
+                "kind": "lib"
+            }
+        },
+        "args": [ ],
+        "cwd": "${workspaceFolder}",
+        "preLaunchTask": "echotest"
+    }
+ 
+    
+    
+    
+  ]
+}

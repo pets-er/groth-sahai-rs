@@ -22,7 +22,7 @@ pub trait Verifiable<E: PairingEngine> {
 }
 
 impl<E: PairingEngine> Verifiable<E> for PPE<E> {
-
+/* 
     fn verify(&self, com_proof: &CProof<E>, crs: &CRS<E>) -> bool {
 
         assert_eq!(com_proof.equ_proofs.len(), 1);
@@ -46,8 +46,8 @@ impl<E: PairingEngine> Verifiable<E> for PPE<E> {
         let rhs: ComT<E> = lin_t + com1_pf2 + pf1_com2;
 
         lhs == rhs
-    }
-    fn verify_hhk_17(&self, com_proof: &CProof<E>, crs: &CRS<E>) -> bool {
+    }*/
+      fn verify(&self, com_proof: &CProof<E>, crs: &CRS<E>) -> bool {
         assert_eq!(com_proof.equ_proofs.len(), 1);
         assert_eq!(self.get_type(), com_proof.equ_proofs[0].equ_type);
         let is_parallel = true;
@@ -56,13 +56,13 @@ impl<E: PairingEngine> Verifiable<E> for PPE<E> {
 
         // this should use impl<F: Field> Mat<F> for Matrix<F> 
         //fn add(&self, other: &Self) -> Self {
-        let vec_a: Vec<Com1<E>> = &Com1::<E>::batch_linear_map(&self.a_consts);
-        let mat_agammax: Matrix<Com1<E>> = vec_gammax.add(vec_a)
+        let mat_a: Matrix<Com1<E>> = vec_to_col_vec(&Com1::<E>::batch_linear_map(&self.a_consts));
+        let mat_agammax: Matrix<Com1<E>> = vec_gammax.add(&mat_a);
         
 
-        let vec_agammax: &self.a_consts.add()
+        //let vec_agammax: &self.a_consts.add()
 
-        let lin_a_gammax_y = ComT::<E>::pairing_sum(
+        //let lin_a_gammax_y = ComT::<E>::pairing_sum(
 
         let lin_a_com_y = ComT::<E>::pairing_sum(&Com1::<E>::batch_linear_map(&self.a_consts), &com_proof.ycoms.coms);
         let com_x_lin_b = ComT::<E>::pairing_sum(&com_proof.xcoms.coms, &Com2::<E>::batch_linear_map(&self.b_consts));
@@ -75,11 +75,13 @@ impl<E: PairingEngine> Verifiable<E> for PPE<E> {
         let rhs: ComT<E> = lin_t + com1_pf2 + pf1_com2;
         lhs == rhs
     }
+
+/*
     fn batch_verify(&self, com_proof: &CProof<E>, crs: &CRS<E>) -> bool {
         assert_eq!(com_proof.equ_proofs.len(), 1);
         assert_eq!(self.get_type(), com_proof.equ_proofs[0].equ_type);
         let is_parallel = true;
-        let mut rng = ark_std::test_rng();
+        let mut rng = ark_std::vec_to_col_vec_rng();
         let S = (Fr::rand(&mut rng), Fr::rand(&mut rng)) // selects a random field element
         let R = (Fr::rand(&mut rng), Fr::rand(&mut rng)) 
         // ∑ᵢ₌₁ᵐʸ ẽ ([a̅ᵢ]₁,[y̅ᵢ]₂)     $\sum_{i=1}^{m_y} \tilde{e}\left(\left[\bar{a}_i\right]_1,\left[\bar{y}_i\right]_2\right)$
@@ -106,7 +108,7 @@ impl<E: PairingEngine> Verifiable<E> for PPE<E> {
         let rhs: ComT<E> = lin_t + com1_pf2 + pf1_com2;
 
         lhs == rhs
-    }
+    } */
 }
 
 

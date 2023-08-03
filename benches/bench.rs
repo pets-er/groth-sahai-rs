@@ -611,7 +611,7 @@ fn bench_small_PPE_verify(c: &mut Criterion) {
     );
 }
 
-fn bench_large_PPE_verify(c: &mut Criterion) {
+pub fn bench_large_PPE_verify(c: &mut Criterion) {
 
     std::env::set_var("DETERMINISTIC_TEST_RNG", "1");
     let mut rng = test_rng();
